@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @ZaaC360
-- 👀 I’m NOT NOT a vibeCodeEr
+- 👀 I’m NOT NOT a vibeCoder
 - 🌱 I’m currently learning webDevelopment
 - 📫 razaraizaroon@gmail.com
 
