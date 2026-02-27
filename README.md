@@ -1,6 +1,6 @@
-- 👋 Hi, I’m @ZaaC360
-- 👀 I’m NOT NOT a vibeCoder
-- 🌱 I’m currently learning webDevelopment
+- 👋 Hola, @ZaaC360 this side
+- 👀 Am NOT NOT a vibeCoder
+- 🌱 Currently learning webDevelopment
 - 📫 razaraizaroon@gmail.com
 
 <!---
