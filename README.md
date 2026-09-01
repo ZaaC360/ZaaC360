@@ -1,5 +1,5 @@
 # 💫 About Me:
-👋 Hola, @ZaaC360 this side<br>👀 Am NOT NOT a vibeCoder<br>🌱 Currently learning webDevelopment<br>
+👋 Hola, @ZaaC360 this side<br>👀 Am NOT NOT a vibeCoder<br>🌱 Full Stack Developer<br>
 
 
 ## 🌐 Socials:
