@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="455" viewBox="0 0 900 455" role="img" aria-labelledby="t d">
 <title id="t">zaac@github: neofetch</title>
-<desc id="d">neofetch for zaac: full-stack developer since 2022. javascript, typescript, python, c++. react, node.js, shopify. shipped meeti, headlessShopify, neon-rubiks-cube. NOT NOT a vibeCoder.</desc>
+<desc id="d">neofetch for zaac: full-stack developer since 2022. javascript, typescript, python, c++. next.js, react native, node, postgres, redis. shipped meeti, cardevo, apexindexer. NOT NOT a vibeCoder.</desc>
 <style>
 text { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; white-space: pre; }
 .g { fill: #39d353; } .gb { fill: #7ee787; } .d { fill: #6e7681; } .f { fill: #c9d1d9; }
 .cur { animation: blink 1s step-end infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .ln { opacity: 1 !important; } .typed { clip-path: none !important; }
-  .rain, .scan, .gl { display: none; } * { animation: none !important; }
+  .ln, .fr0 { opacity: 1 !important; } .typed { clip-path: none !important; }
+  .scan, .fr:not(.fr0) { display: none; } * { animation: none !important; }
 }
 text { font-size: 15px; }
 </style>

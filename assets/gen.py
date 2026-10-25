@@ -1,7 +1,7 @@
 # Generates assets/banner.svg and assets/terminal.svg. Edit the text here, then from the repo root: python assets/gen.py
-import html, random
+# banner.svg is a tiny software 3D renderer: extruded voxel text -> rotate -> perspective -> z-buffer -> lambert -> ascii.
+import html, math
 
-random.seed(360)
 MONO = 'ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace'
 G, GB, DIM, FG, BG = "#39d353", "#7ee787", "#6e7681", "#c9d1d9", "#0a0d0a"
 esc = lambda s: html.escape(s, quote=False)
@@ -30,77 +30,112 @@ text {{ font-family: {MONO}; white-space: pre; }}
 .cur {{ animation: blink 1s step-end infinite; }}
 @keyframes blink {{ 50% {{ opacity: 0; }} }}
 @media (prefers-reduced-motion: reduce) {{
-  .ln {{ opacity: 1 !important; }} .typed {{ clip-path: none !important; }}
-  .rain, .scan, .gl {{ display: none; }} * {{ animation: none !important; }}
+  .ln, .fr0 {{ opacity: 1 !important; }} .typed {{ clip-path: none !important; }}
+  .scan, .fr:not(.fr0) {{ display: none; }} * {{ animation: none !important; }}
 }}"""
 
-LOGO = [  # ANSI Shadow "ZAAC", 32 cols each
-    "███████╗ █████╗  █████╗  ██████╗",
-    "╚══███╔╝██╔══██╗██╔══██╗██╔════╝",
-    "  ███╔╝ ███████║███████║██║     ",
-    " ███╔╝  ██╔══██║██╔══██║██║     ",
-    "███████╗██║  ██║██║  ██║╚██████╗",
-    "╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝",
-]
-assert all(len(r) == 32 for r in LOGO)
+FONT = {  # 9x11 pixel glyphs
+    "Z": ["#########", "#########", "......###", ".....###.", "....###..", "...###...",
+          "..###....", ".###.....", "###......", "#########", "#########"],
+    "A": ["..#####..", ".#######.", "###...###", "##.....##", "##.....##", "#########",
+          "#########", "##.....##", "##.....##", "##.....##", "##.....##"],
+    "C": ["..#######", ".########", "###......", "##.......", "##.......", "##.......",
+          "##.......", "##.......", "###......", ".########", "..#######"],
+}
+RAMP = ".,-~:;=!*#$@"
+
+
+def voxel_points(word, depth=4, s=4):
+    rows = ["..".join(FONT[c][r] for c in word) for r in range(11)]
+    px = {(x, y) for y, row in enumerate(rows) for x, c in enumerate(row) if c == "#"}
+    cx, cy = len(rows[0]) / 2, 11 / 2
+    st = [(i + 0.5) / s for i in range(s)]
+    ds = [-depth / 2 + (i + 0.5) * depth / (s * depth) for i in range(s * depth)]
+    pts = []
+    for x, y in px:
+        X, Y = x - cx, cy - y  # voxel spans X..X+1, Y-1..Y (bitmap y grows down, world y grows up)
+        for a in st:
+            for b in st:
+                pts.append((X + a, Y - b, -depth / 2, 0, 0, -1))
+                pts.append((X + a, Y - b, depth / 2, 0, 0, 1))
+        for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            if (x + dx, y + dy) in px:
+                continue
+            for a in st:
+                for d in ds:
+                    if dx:
+                        pts.append((X + (dx > 0), Y - a, d, dx, 0, 0))
+                    else:
+                        pts.append((X + a, Y - (dy > 0), d, 0, -dy, 0))
+    return pts
+
+
+def render(pts, ay, ax, C, R, K=214, z0=75, aspect=9 / 5.4):
+    ca, sa, cb, sb = math.cos(ay), math.sin(ay), math.cos(ax), math.sin(ax)
+    px_, py_, pz_ = -22, 16, -30  # point light, upper-left in front, so shading slides across faces as they turn
+    zbuf = [[0.0] * C for _ in range(R)]
+    out = [[" "] * C for _ in range(R)]
+    for x, y, z, nx, ny, nz in pts:
+        x1, z1 = x * ca + z * sa, -x * sa + z * ca
+        n1x, n1z = nx * ca + nz * sa, -nx * sa + nz * ca
+        y2, z2 = y * cb - z1 * sb, y * sb + z1 * cb
+        n2y, n2z = ny * cb - n1z * sb, ny * sb + n1z * cb
+        ooz = 1 / (z2 + z0)
+        col, row = int(C / 2 + K * x1 * ooz), int(R / 2 - K * y2 * ooz / aspect)
+        if 0 <= col < C and 0 <= row < R and ooz > zbuf[row][col]:
+            zbuf[row][col] = ooz
+            lx, ly, lz = px_ - x1, py_ - y2, pz_ - z2
+            lum = (n1x * lx + n2y * ly + n2z * lz) / math.sqrt(lx * lx + ly * ly + lz * lz)
+            out[row][col] = RAMP[min(11, int(lum ** 1.6 * 13))] if lum > 0 else "."
+    return ["".join(r) for r in out]
 
 
 def banner():
-    W, H, cw = 900, 300, 13
-    x0 = (W - 32 * cw) / 2
-    chars = "01アイウエオカキクケコサシスセソタチツテト<>/{}[]=+*#$%&"
-    rain = []
-    for i in range(46):
-        x = 8 + i * 19.6
-        col = [random.choice(chars) for _ in range(random.randint(10, 18))]
-        tsp = "".join(f'<tspan x="{x:.1f}" dy="18"{" class=\"hd\"" if j == len(col) - 1 else ""}>{esc(c)}</tspan>'
-                      for j, c in enumerate(col))
-        rain.append(f'<text class="rain" style="animation-duration:{random.uniform(5, 12):.1f}s;'
-                    f'animation-delay:-{random.uniform(0, 12):.1f}s">{tsp}</text>')
+    W, H, C, R, N, T, cw, lh = 900, 384, 160, 32, 60, 6, 5.4, 9
+    x0, y0 = (W - C * cw) / 2, 38
+    pts = voxel_points("ZAAC")
+    frames = []
+    for i in range(N):
+        t = 2 * math.pi * i / N
+        ay, ax = 0.7 * math.sin(t), 0.2 * math.sin(2 * t)
+        rows = []
+        for r, line in enumerate(render(pts, ay, ax, C, R)):
+            body = line.strip()
+            if body:
+                lead = len(line) - len(line.lstrip())
+                rows.append(pinned(round(x0 + lead * cw, 1), y0 + r * lh + 7, body, cw, ""))
+        hud = f"θy {math.degrees(ay):+06.1f}°  θx {math.degrees(ax):+05.1f}°  frame {i + 1:02d}/{N}"
+        rows.append(f'<text class="hud" x="{W - 20}" y="{H - 16}" text-anchor="end">{hud}</text>')
+        frames.append(f'<g class="fr fr{i}" style="animation-delay:{i * T / N:.2f}s">{"".join(rows)}</g>')
 
-    def layer(cls, entrance):
-        rows = [pinned(x0, 80 + i * 24, r, cw, "") for i, r in enumerate(LOGO)]
-        if entrance:
-            rows = [show(0.15 + i * 0.08, r) for i, r in enumerate(rows)]
-        return f'<g class="{cls}">{"".join(rows)}</g>'
-
-    sub = "> read the source. write the polyfill. ship it."
+    sub = "> no webgl. no libraries. just math and characters."
     sx = (W - len(sub) * 9.6) / 2
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="t d">
 <title id="t">ZAAC</title>
-<desc id="d">ASCII art ZAAC over falling matrix code. read the source. write the polyfill. ship it.</desc>
+<desc id="d">The word ZAAC as a 3D object, rendered frame by frame into ASCII characters, swinging in space. no webgl. no libraries. just math and characters.</desc>
 <style>{BASE_CSS}
-.rain {{ font-size: 15px; fill: {G}; opacity: .28; animation: fall linear infinite; }}
-.rain .hd {{ fill: #d7ffd9; }}
-@keyframes fall {{ from {{ transform: translateY(-340px); }} to {{ transform: translateY({H + 20}px); }} }}
-.logo text {{ font-size: 22px; }}
-.main {{ fill: {G}; filter: url(#glow); animation: jit 5s infinite; }}
-.gl {{ opacity: 0; animation: 5s infinite; }} .gr {{ fill: #ff2a6d; animation-name: gr; }} .gc {{ fill: #05d9e8; animation-name: gc; }}
-@keyframes jit {{ 0%,86%,93%,100% {{ transform: none; }} 88% {{ transform: translateX(3px); }} 90% {{ transform: translateX(-2px); }} }}
-@keyframes gr {{ 0%,86%,93%,100% {{ opacity: 0; transform: none; }} 87% {{ opacity: .8; transform: translate(-5px,1px); }} 90% {{ opacity: .7; transform: translate(4px,-2px); }} }}
-@keyframes gc {{ 0%,86%,93%,100% {{ opacity: 0; transform: none; }} 87% {{ opacity: .8; transform: translate(5px,-1px); }} 90% {{ opacity: .7; transform: translate(-3px,2px); }} }}
+.fr {{ opacity: 0; animation: fr {T}s step-end infinite; font-size: 9px; }}
+@keyframes fr {{ 0% {{ opacity: 1; }} {100 / N:.4f}% {{ opacity: 0; }} 100% {{ opacity: 0; }} }}
+.obj {{ fill: url(#gg); filter: url(#glow); }}
 .scan {{ animation: scan 7s linear infinite; }}
 @keyframes scan {{ from {{ transform: translateY(-60px); }} to {{ transform: translateY({H}px); }} }}
 .hud {{ font-size: 12px; fill: {DIM}; }} .sub {{ font-size: 16px; fill: {FG}; }}
 </style>
 <defs>
 <clipPath id="win"><rect width="{W}" height="{H}" rx="10"/></clipPath>
-<filter id="glow" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<radialGradient id="vig" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="{BG}" stop-opacity=".93"/><stop offset=".55" stop-color="{BG}" stop-opacity=".75"/><stop offset="1" stop-color="{BG}" stop-opacity="0"/></radialGradient>
-<linearGradient id="sb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{G}" stop-opacity="0"/><stop offset=".5" stop-color="{G}" stop-opacity=".07"/><stop offset="1" stop-color="{G}" stop-opacity="0"/></linearGradient>
-<pattern id="sl" width="4" height="3" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="#000" opacity=".35"/></pattern>
+<filter id="glow" x="-5%" y="-10%" width="110%" height="120%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="0" y1="{y0}" x2="0" y2="{y0 + R * lh}"><stop offset="0" stop-color="#b4ffbf"/><stop offset=".5" stop-color="{G}"/><stop offset="1" stop-color="#1a7f37"/></linearGradient>
+<linearGradient id="sb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{G}" stop-opacity="0"/><stop offset=".5" stop-color="{G}" stop-opacity=".06"/><stop offset="1" stop-color="{G}" stop-opacity="0"/></linearGradient>
+<pattern id="sl" width="4" height="3" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="#000" opacity=".3"/></pattern>
 </defs>
 <g clip-path="url(#win)">
 <rect width="{W}" height="{H}" fill="{BG}"/>
-{"".join(rain)}
-<rect width="{W}" height="{H}" fill="url(#vig)"/>
-<g class="logo">{layer("gl gr", False)}{layer("gl gc", False)}{layer("main", True)}</g>
-{typed("sub", round(sx, 1), 250, sub, 9.6, 1.0, 2.2, "sub")}
-{show(3.2, f'<rect class="cur" x="{sx + len(sub) * 9.6 + 4:.1f}" y="236" width="9" height="18" fill="{G}"/>')}
-<text class="hud" x="20" y="26">ZaaC360://root</text>
+<g class="obj">{"".join(frames)}</g>
+{typed("sub", round(sx, 1), H - 46, sub, 9.6, 0.6, 2.2, "sub")}
+{show(2.8, f'<rect class="cur" x="{sx + len(sub) * 9.6 + 4:.1f}" y="{H - 60}" width="9" height="18" fill="{G}"/>')}
+<text class="hud" x="20" y="26">zaac.c — software rasterizer → ascii</text>
 <text class="hud" x="{W - 20}" y="26" text-anchor="end">sys.status: ONLINE <tspan class="g cur">●</tspan></text>
-<text class="hud" x="20" y="{H - 16}">full-stack · js internals · c++</text>
-<text class="hud" x="{W - 20}" y="{H - 16}" text-anchor="end">since 2022</text>
+<text class="hud" x="20" y="{H - 16}">{len(pts):,} points · z-buffer · lambert</text>
 <rect class="scan" width="{W}" height="60" fill="url(#sb)"/>
 <rect width="{W}" height="{H}" fill="url(#sl)"/>
 </g>
@@ -157,7 +192,7 @@ def terminal():
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="t d">
 <title id="t">zaac@github: neofetch</title>
-<desc id="d">neofetch for zaac: full-stack developer since 2022. javascript, typescript, python, c++. react, node.js, shopify. shipped meeti, headlessShopify, neon-rubiks-cube. NOT NOT a vibeCoder.</desc>
+<desc id="d">neofetch for zaac: full-stack developer since 2022. javascript, typescript, python, c++. next.js, react native, node, postgres, redis. shipped meeti, cardevo, apexindexer. NOT NOT a vibeCoder.</desc>
 <style>{BASE_CSS}
 text {{ font-size: 15px; }}
 </style>
@@ -174,6 +209,10 @@ text {{ font-size: 15px; }}
 </svg>"""
 
 
-for name, svg in (("banner", banner()), ("terminal", terminal())):
-    open(f"assets/{name}.svg", "w", encoding="utf-8").write(svg)
-    print(name, len(svg.encode()), "bytes")
+if __name__ == "__main__":
+    # self-check: the unrotated render must contain lit front faces and stay inside the frame
+    flat = render(voxel_points("ZAAC"), 0, 0, 160, 32)
+    assert any(c in "".join(flat) for c in "#$@") and not flat[0].strip() and not flat[-1].strip()
+    for name, svg in (("banner", banner()), ("terminal", terminal())):
+        open(f"assets/{name}.svg", "w", encoding="utf-8").write(svg)
+        print(name, len(svg.encode()), "bytes")
