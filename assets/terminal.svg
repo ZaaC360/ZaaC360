@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="370" viewBox="0 0 820 370" role="img" aria-labelledby="title desc">
+  <title id="title">zaac@github terminal</title>
+  <desc id="desc">An animated terminal. whoami: Rai Zaroon Raza, full-stack dev. Stack: React, TypeScript, Node.js, Python, C++. Projects: meeti, headlessShopify, neon-rubiks-cube, freelancing-platform. Status: not a vibeCoder.</desc>
+  <style>
+    text { font: 15px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre; }
+    .p { fill: #7ee787; } .u { fill: #79c0ff; } .c { fill: #e6edf3; } .o { fill: #8b949e; }
+    .k { fill: #ff7b72; } .s { fill: #a5d6ff; } .v { fill: #d2a8ff; } .y { fill: #f2cc60; }
+    .ln { opacity: 0; }
+    @keyframes show { to { opacity: 1; } }
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes t6  { to { transform: translateX(54px); } }
+    @keyframes t13 { to { transform: translateX(117px); } }
+    @keyframes t14 { to { transform: translateX(126px); } }
+    @media (prefers-reduced-motion: reduce) {
+      .ln { opacity: 1; animation: none !important; }
+      .cv { display: none; }
+    }
+  </style>
+  <clipPath id="win"><rect width="820" height="370" rx="10"/></clipPath>
+
+  <g clip-path="url(#win)">
+    <rect width="820" height="370" fill="#0d1117"/>
+    <rect width="820" height="36" fill="#161b22"/>
+    <circle cx="22" cy="18" r="6" fill="#ff5f56"/>
+    <circle cx="42" cy="18" r="6" fill="#ffbd2e"/>
+    <circle cx="62" cy="18" r="6" fill="#27c93f"/>
+    <text x="410" y="23" text-anchor="middle" class="o" style="font-size:13px">zaac@github: ~</text>
+
+    <!-- textLength pins prompt/command widths so the typing cover lines up in any monospace font -->
+    <g class="ln" style="animation: show 0s .4s forwards">
+      <text x="24" y="70" textLength="126" lengthAdjust="spacingAndGlyphs"><tspan class="p">zaac@github</tspan><tspan class="c">:</tspan><tspan class="u">~</tspan><tspan class="c">$</tspan></text>
+      <text x="159" y="70" class="c" textLength="54" lengthAdjust="spacingAndGlyphs">whoami</text>
+      <rect class="cv" x="159" y="53" width="700" height="22" fill="#0d1117" style="animation: t6 .5s steps(6) .6s forwards"/>
+    </g>
+    <text class="ln" x="24" y="95" style="animation: show 0s 1.4s forwards"><tspan class="y">Rai Zaroon Raza</tspan><tspan class="o"> — full-stack dev. Ships it end-to-end, front to back.</tspan></text>
+
+    <g class="ln" style="animation: show 0s 2s forwards">
+      <text x="24" y="128" textLength="126" lengthAdjust="spacingAndGlyphs"><tspan class="p">zaac@github</tspan><tspan class="c">:</tspan><tspan class="u">~</tspan><tspan class="c">$</tspan></text>
+      <text x="159" y="128" class="c" textLength="126" lengthAdjust="spacingAndGlyphs">cat stack.json</text>
+      <rect class="cv" x="159" y="111" width="700" height="22" fill="#0d1117" style="animation: t14 1.1s steps(14) 2.2s forwards"/>
+    </g>
+    <text class="ln" x="24" y="153" style="animation: show 0s 3.6s forwards"><tspan class="c">{ </tspan><tspan class="k">"frontend"</tspan><tspan class="c">: [</tspan><tspan class="s">"React"</tspan><tspan class="c">, </tspan><tspan class="s">"TypeScript"</tspan><tspan class="c">, </tspan><tspan class="s">"HTML/CSS"</tspan><tspan class="c">],</tspan></text>
+    <text class="ln" x="24" y="178" style="animation: show 0s 3.75s forwards"><tspan class="c">  </tspan><tspan class="k">"backend"</tspan><tspan class="c">:  [</tspan><tspan class="s">"Node.js"</tspan><tspan class="c">, </tspan><tspan class="s">"Python"</tspan><tspan class="c">, </tspan><tspan class="s">"REST"</tspan><tspan class="c">],</tspan></text>
+    <text class="ln" x="24" y="203" style="animation: show 0s 3.9s forwards"><tspan class="c">  </tspan><tspan class="k">"core"</tspan><tspan class="c">:     [</tspan><tspan class="s">"C++"</tspan><tspan class="c">, </tspan><tspan class="s">"DSA"</tspan><tspan class="c">, </tspan><tspan class="s">"JS internals"</tspan><tspan class="c">] }</tspan></text>
+
+    <g class="ln" style="animation: show 0s 4.5s forwards">
+      <text x="24" y="236" textLength="126" lengthAdjust="spacingAndGlyphs"><tspan class="p">zaac@github</tspan><tspan class="c">:</tspan><tspan class="u">~</tspan><tspan class="c">$</tspan></text>
+      <text x="159" y="236" class="c" textLength="117" lengthAdjust="spacingAndGlyphs">ls ~/projects</text>
+      <rect class="cv" x="159" y="219" width="700" height="22" fill="#0d1117" style="animation: t13 1s steps(13) 4.7s forwards"/>
+    </g>
+    <text class="ln u" x="24" y="261" style="animation: show 0s 6s forwards">meeti/   headlessShopify/   neon-rubiks-cube/   freelancing-platform/</text>
+
+    <g class="ln" style="animation: show 0s 6.6s forwards">
+      <text x="24" y="294" textLength="126" lengthAdjust="spacingAndGlyphs"><tspan class="p">zaac@github</tspan><tspan class="c">:</tspan><tspan class="u">~</tspan><tspan class="c">$</tspan></text>
+      <text x="159" y="294" class="c" textLength="126" lengthAdjust="spacingAndGlyphs">cat status.txt</text>
+      <rect class="cv" x="159" y="277" width="700" height="22" fill="#0d1117" style="animation: t14 1.1s steps(14) 6.8s forwards"/>
+    </g>
+    <text class="ln" x="24" y="319" style="animation: show 0s 8.2s forwards"><tspan class="p">✔ </tspan><tspan class="v">NOT a vibeCoder</tspan><tspan class="o"> — writes polyfills for fun (Promise.all, debounce)</tspan></text>
+
+    <g class="ln" style="animation: show 0s 8.8s forwards">
+      <text x="24" y="352" textLength="126" lengthAdjust="spacingAndGlyphs"><tspan class="p">zaac@github</tspan><tspan class="c">:</tspan><tspan class="u">~</tspan><tspan class="c">$</tspan></text>
+      <rect x="159" y="337" width="9" height="19" fill="#e6edf3" style="animation: blink 1s step-end infinite"/>
+    </g>
+  </g>
+  <rect x=".5" y=".5" width="819" height="369" rx="10" fill="none" stroke="#30363d"/>
+</svg>
