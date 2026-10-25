@@ -1,5 +1,4 @@
 # Generates assets/banner.svg and assets/terminal.svg. Edit the text here, then from the repo root: python assets/gen.py
-# banner.svg is a tiny software 3D renderer: extruded voxel text -> rotate -> perspective -> z-buffer -> lambert -> ascii.
 import html, math
 
 MONO = 'ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace'
@@ -30,8 +29,8 @@ text {{ font-family: {MONO}; white-space: pre; }}
 .cur {{ animation: blink 1s step-end infinite; }}
 @keyframes blink {{ 50% {{ opacity: 0; }} }}
 @media (prefers-reduced-motion: reduce) {{
-  .ln, .fr0 {{ opacity: 1 !important; }} .typed {{ clip-path: none !important; }}
-  .scan, .fr:not(.fr0) {{ display: none; }} * {{ animation: none !important; }}
+  .ln {{ opacity: 1 !important; }} .typed {{ clip-path: none !important; }}
+  .scan {{ display: none; }} * {{ animation: none !important; }}
 }}"""
 
 FONT = {  # 9x11 pixel glyphs
@@ -42,102 +41,69 @@ FONT = {  # 9x11 pixel glyphs
     "C": ["..#######", ".########", "###......", "##.......", "##.......", "##.......",
           "##.......", "##.......", "###......", ".########", "..#######"],
 }
-RAMP = ".,-~:;=!*#$@"
-
-
-def voxel_points(word, depth=4, s=4):
-    rows = ["..".join(FONT[c][r] for c in word) for r in range(11)]
-    px = {(x, y) for y, row in enumerate(rows) for x, c in enumerate(row) if c == "#"}
-    cx, cy = len(rows[0]) / 2, 11 / 2
-    st = [(i + 0.5) / s for i in range(s)]
-    ds = [-depth / 2 + (i + 0.5) * depth / (s * depth) for i in range(s * depth)]
-    pts = []
-    for x, y in px:
-        X, Y = x - cx, cy - y  # voxel spans X..X+1, Y-1..Y (bitmap y grows down, world y grows up)
-        for a in st:
-            for b in st:
-                pts.append((X + a, Y - b, -depth / 2, 0, 0, -1))
-                pts.append((X + a, Y - b, depth / 2, 0, 0, 1))
-        for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-            if (x + dx, y + dy) in px:
-                continue
-            for a in st:
-                for d in ds:
-                    if dx:
-                        pts.append((X + (dx > 0), Y - a, d, dx, 0, 0))
-                    else:
-                        pts.append((X + a, Y - (dy > 0), d, 0, -dy, 0))
-    return pts
-
-
-def render(pts, ay, ax, C, R, K=214, z0=75, aspect=9 / 5.4):
-    ca, sa, cb, sb = math.cos(ay), math.sin(ay), math.cos(ax), math.sin(ax)
-    px_, py_, pz_ = -22, 16, -30  # point light, upper-left in front, so shading slides across faces as they turn
-    zbuf = [[0.0] * C for _ in range(R)]
-    out = [[" "] * C for _ in range(R)]
-    for x, y, z, nx, ny, nz in pts:
-        x1, z1 = x * ca + z * sa, -x * sa + z * ca
-        n1x, n1z = nx * ca + nz * sa, -nx * sa + nz * ca
-        y2, z2 = y * cb - z1 * sb, y * sb + z1 * cb
-        n2y, n2z = ny * cb - n1z * sb, ny * sb + n1z * cb
-        ooz = 1 / (z2 + z0)
-        col, row = int(C / 2 + K * x1 * ooz), int(R / 2 - K * y2 * ooz / aspect)
-        if 0 <= col < C and 0 <= row < R and ooz > zbuf[row][col]:
-            zbuf[row][col] = ooz
-            lx, ly, lz = px_ - x1, py_ - y2, pz_ - z2
-            lum = (n1x * lx + n2y * ly + n2z * lz) / math.sqrt(lx * lx + ly * ly + lz * lz)
-            out[row][col] = RAMP[min(11, int(lum ** 1.6 * 13))] if lum > 0 else "."
-    return ["".join(r) for r in out]
 
 
 def banner():
-    W, H, C, R, N, T, cw, lh = 900, 384, 160, 32, 60, 6, 5.4, 9
-    x0, y0 = (W - C * cw) / 2, 38
-    pts = voxel_points("ZAAC")
-    frames = []
-    for i in range(N):
-        t = 2 * math.pi * i / N
-        ay, ax = 0.7 * math.sin(t), 0.2 * math.sin(2 * t)
-        rows = []
-        for r, line in enumerate(render(pts, ay, ax, C, R)):
-            body = line.strip()
-            if body:
-                lead = len(line) - len(line.lstrip())
-                rows.append(pinned(round(x0 + lead * cw, 1), y0 + r * lh + 7, body, cw, ""))
-        hud = f"θy {math.degrees(ay):+06.1f}°  θx {math.degrees(ax):+05.1f}°  frame {i + 1:02d}/{N}"
-        rows.append(f'<text class="hud" x="{W - 20}" y="{H - 16}" text-anchor="end">{hud}</text>')
-        frames.append(f'<g class="fr fr{i}" style="animation-delay:{i * T / N:.2f}s">{"".join(rows)}</g>')
+    import random
+    random.seed(360)
+    W, H, T, step = 900, 320, 7, 9.5
+    rows = ["..".join(FONT[c][r] for c in "ZAAC") for r in range(11)]
+    gw, gh = len(rows[0]) * 2 * step, 22 * step
+    x0, y0 = (W - gw) / 2, 34
+    cx, cy = W / 2, y0 + gh / 2
+    greens = ["#39d353"] * 4 + ["#56d364"] * 3 + ["#7ee787", "#2ea043", "#aff5b4"]
+    dots = []
+    for y, row in enumerate(rows):
+        for x, c in enumerate(row):
+            if c != "#":
+                continue
+            for sx in (0, 1):  # 2x2 dots per glyph pixel
+                for sy in (0, 1):
+                    tx, ty = x0 + (2 * x + sx + 0.5) * step, y0 + (2 * y + sy + 0.5) * step
+                    fx, fy = random.uniform(-150, W + 150) - tx, random.uniform(-120, H + 120) - ty
+                    a = math.atan2(ty - cy, tx - cx) + random.uniform(-0.5, 0.5)
+                    d = random.uniform(250, 600)
+                    delay = (tx - x0) / gw * 0.9 + random.uniform(0, 0.35)  # assembles as a left-to-right wave
+                    dots.append(f'<circle cx="{tx:.1f}" cy="{ty:.1f}" r="3.3" fill="{random.choice(greens)}" '
+                                f'style="--x:{fx:.0f}px;--y:{fy:.0f}px;--ex:{math.cos(a) * d:.0f}px;--ey:{math.sin(a) * d:.0f}px;'
+                                f'animation-delay:{delay:.2f}s"/>')
 
-    sub = "> no webgl. no libraries. just math and characters."
+    sub = "> read the source. write the polyfill. ship it."
     sx = (W - len(sub) * 9.6) / 2
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="t d">
 <title id="t">ZAAC</title>
-<desc id="d">The word ZAAC as a 3D object, rendered frame by frame into ASCII characters, swinging in space. no webgl. no libraries. just math and characters.</desc>
+<desc id="d">Hundreds of glowing dots fly in from everywhere and assemble into the word ZAAC, hold, then burst apart and reform. read the source. write the polyfill. ship it.</desc>
 <style>{BASE_CSS}
-.fr {{ opacity: 0; animation: fr {T}s step-end infinite; font-size: 9px; }}
-@keyframes fr {{ 0% {{ opacity: 1; }} {100 / N:.4f}% {{ opacity: 0; }} 100% {{ opacity: 0; }} }}
-.obj {{ fill: url(#gg); filter: url(#glow); }}
+.dots {{ filter: url(#glow); }}
+.dots circle {{ transform-box: fill-box; transform-origin: center; opacity: 0;
+  transform: translate(var(--x), var(--y)) scale(.3); animation: fly {T}s infinite, shine {T}s infinite; }}
+@keyframes fly {{
+  0% {{ transform: translate(var(--x), var(--y)) scale(.3); opacity: 0; animation-timing-function: cubic-bezier(.16, 1, .3, 1); }}
+  38%, 80% {{ transform: translate(0, 0) scale(1); opacity: 1; }}
+  80% {{ animation-timing-function: cubic-bezier(.7, 0, .84, 0); }}
+  100% {{ transform: translate(var(--ex), var(--ey)) scale(.3); opacity: 0; }}
+}}
+@keyframes shine {{ 0%, 52%, 60%, 100% {{ fill-opacity: 1; }} 55% {{ fill: #ffffff; }} }}
 .scan {{ animation: scan 7s linear infinite; }}
 @keyframes scan {{ from {{ transform: translateY(-60px); }} to {{ transform: translateY({H}px); }} }}
 .hud {{ font-size: 12px; fill: {DIM}; }} .sub {{ font-size: 16px; fill: {FG}; }}
+@media (prefers-reduced-motion: reduce) {{ .dots circle {{ transform: none !important; opacity: 1 !important; }} }}
 </style>
 <defs>
 <clipPath id="win"><rect width="{W}" height="{H}" rx="10"/></clipPath>
-<filter id="glow" x="-5%" y="-10%" width="110%" height="120%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="0" y1="{y0}" x2="0" y2="{y0 + R * lh}"><stop offset="0" stop-color="#b4ffbf"/><stop offset=".5" stop-color="{G}"/><stop offset="1" stop-color="#1a7f37"/></linearGradient>
-<linearGradient id="sb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{G}" stop-opacity="0"/><stop offset=".5" stop-color="{G}" stop-opacity=".06"/><stop offset="1" stop-color="{G}" stop-opacity="0"/></linearGradient>
-<pattern id="sl" width="4" height="3" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="#000" opacity=".3"/></pattern>
+<filter id="glow" x="-5%" y="-10%" width="110%" height="120%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<pattern id="grid" x="{x0}" y="{y0}" width="{step}" height="{step}" patternUnits="userSpaceOnUse"><circle cx="{step / 2}" cy="{step / 2}" r="1" fill="#1b2a1b"/></pattern>
+<linearGradient id="sb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{G}" stop-opacity="0"/><stop offset=".5" stop-color="{G}" stop-opacity=".05"/><stop offset="1" stop-color="{G}" stop-opacity="0"/></linearGradient>
 </defs>
 <g clip-path="url(#win)">
 <rect width="{W}" height="{H}" fill="{BG}"/>
-<g class="obj">{"".join(frames)}</g>
-{typed("sub", round(sx, 1), H - 46, sub, 9.6, 0.6, 2.2, "sub")}
-{show(2.8, f'<rect class="cur" x="{sx + len(sub) * 9.6 + 4:.1f}" y="{H - 60}" width="9" height="18" fill="{G}"/>')}
-<text class="hud" x="20" y="26">zaac.c — software rasterizer → ascii</text>
-<text class="hud" x="{W - 20}" y="26" text-anchor="end">sys.status: ONLINE <tspan class="g cur">●</tspan></text>
-<text class="hud" x="20" y="{H - 16}">{len(pts):,} points · z-buffer · lambert</text>
+<rect width="{W}" height="{H}" fill="url(#grid)"/>
+<g class="dots">{"".join(dots)}</g>
+{typed("sub", round(sx, 1), H - 34, sub, 9.6, 2.4, 2.2, "sub")}
+{show(4.6, f'<rect class="cur" x="{sx + len(sub) * 9.6 + 4:.1f}" y="{H - 48}" width="9" height="18" fill="{G}"/>')}
+<text class="hud" x="20" y="24">ZaaC360://root</text>
+<text class="hud" x="{W - 20}" y="24" text-anchor="end">sys.status: ONLINE <tspan class="g cur">●</tspan></text>
 <rect class="scan" width="{W}" height="60" fill="url(#sb)"/>
-<rect width="{W}" height="{H}" fill="url(#sl)"/>
 </g>
 <rect x=".5" y=".5" width="{W - 1}" height="{H - 1}" rx="10" fill="none" stroke="#1f2d1f"/>
 </svg>"""
@@ -210,9 +176,7 @@ text {{ font-size: 15px; }}
 
 
 if __name__ == "__main__":
-    # self-check: the unrotated render must contain lit front faces and stay inside the frame
-    flat = render(voxel_points("ZAAC"), 0, 0, 160, 32)
-    assert any(c in "".join(flat) for c in "#$@") and not flat[0].strip() and not flat[-1].strip()
+    assert banner().count("<circle") > 800  # 2x2 dots per lit glyph pixel
     for name, svg in (("banner", banner()), ("terminal", terminal())):
         open(f"assets/{name}.svg", "w", encoding="utf-8").write(svg)
         print(name, len(svg.encode()), "bytes")

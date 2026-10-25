@@ -7,8 +7,8 @@ text { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono"
 .cur { animation: blink 1s step-end infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .ln, .fr0 { opacity: 1 !important; } .typed { clip-path: none !important; }
-  .scan, .fr:not(.fr0) { display: none; } * { animation: none !important; }
+  .ln { opacity: 1 !important; } .typed { clip-path: none !important; }
+  .scan { display: none; } * { animation: none !important; }
 }
 text { font-size: 15px; }
 </style>

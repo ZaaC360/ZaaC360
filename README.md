@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/banner.svg" width="100%" alt="ZAAC as a 3D object rendered into ASCII — no webgl, no libraries, just math and characters" />
+  <img src="./assets/banner.svg" width="100%" alt="Glowing dots fly in and assemble into ZAAC — read the source. write the polyfill. ship it." />
 </p>
 
 <p align="center">
