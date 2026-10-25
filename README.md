@@ -44,8 +44,4 @@ $ git log --graph --author=ZaaC360
   <img src="https://github-readme-streak-stats-nu-snowy.vercel.app?user=ZaaC360&hide_border=true&background=0D1117&ring=39D353&fire=39D353&currStreakLabel=39D353&currStreakNum=C9D1D9&sideNums=C9D1D9&sideLabels=8B949E&dates=6E7681&stroke=30363D" alt="GitHub streak" />
 </p>
 
-<p align="center">
-  <img width="100%" src="https://github-readme-activity-graph.vercel.app/graph?username=ZaaC360&bg_color=0d1117&color=8b949e&line=39d353&point=c9d1d9&area=true&area_color=39d353&hide_border=true&custom_title=commits%20%2F%20day" alt="Contribution graph" />
-</p>
-
 <p align="center"><code>EOF</code></p>
