@@ -56,12 +56,4 @@
   <img width="100%" src="https://github-readme-activity-graph.vercel.app/graph?username=ZaaC360&bg_color=0d1117&color=58a6ff&line=8957e5&point=ffffff&area=true&area_color=1f6feb&hide_border=true&custom_title=Contribution%20graph" alt="Contribution graph" />
 </p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ZaaC360/ZaaC360/output/github-snake-dark.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ZaaC360/ZaaC360/output/github-snake.svg" />
-    <img alt="Snake eating my contributions" src="https://raw.githubusercontent.com/ZaaC360/ZaaC360/output/github-snake-dark.svg" />
-  </picture>
-</p>
-
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=120&color=0:8957e5,50:1f6feb,100:0d1117&section=footer" alt="" />
