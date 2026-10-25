@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/banner.svg?v=dots" width="100%" alt="Glowing dots fly in and assemble into ZAAC — read the source. write the polyfill. ship it." />
+  <img src="./assets/banner.svg?v=edge" width="100%" alt="Glowing dots fly in and assemble into ZAAC — read the source. write the polyfill. ship it." />
 </p>
 
 <p align="center">

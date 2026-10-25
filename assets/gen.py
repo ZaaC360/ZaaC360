@@ -33,23 +33,23 @@ text {{ font-family: {MONO}; white-space: pre; }}
   .scan {{ display: none; }} * {{ animation: none !important; }}
 }}"""
 
-FONT = {  # 9x11 pixel glyphs
-    "Z": ["#########", "#########", "......###", ".....###.", "....###..", "...###...",
-          "..###....", ".###.....", "###......", "#########", "#########"],
-    "A": ["..#####..", ".#######.", "###...###", "##.....##", "##.....##", "#########",
-          "#########", "##.....##", "##.....##", "##.....##", "##.....##"],
-    "C": ["..#######", ".########", "###......", "##.......", "##.......", "##.......",
-          "##.......", "##.......", "###......", ".########", "..#######"],
+FONT = {  # 11x11 angular glyphs: chamfered corners, Λ-style A
+    "Z": ["##########.", "###########", ".......####", "......####.", ".....####..", "....####...",
+          "...####....", "..####.....", ".####......", "###########", ".##########"],
+    "A": ["....###....", "...#####...", "...#####...", "..###.###..", "..###.###..", ".###...###.",
+          ".#########.", "###########", "###.....###", "###.....###", "###.....###"],
+    "C": ["...########", "..#########", ".####......", "####.......", "###........", "###........",
+          "###........", "####.......", ".####......", "..#########", "...########"],
 }
 
 
 def banner():
     import random
     random.seed(360)
-    W, H, T, step = 900, 320, 7, 9.5
-    rows = ["..".join(FONT[c][r] for c in "ZAAC") for r in range(11)]
-    gw, gh = len(rows[0]) * 2 * step, 22 * step
-    x0, y0 = (W - gw) / 2, 34
+    W, H, T, step, skew = 900, 320, 7, 7.4, 0.35
+    rows = ["...".join(FONT[c][r] for c in "ZAAC") for r in range(11)]
+    gw, gh = (len(rows[0]) * 2 + 21 * skew) * step, 22 * step
+    x0, y0 = (W - gw) / 2, 60
     cx, cy = W / 2, y0 + gh / 2
     greens = ["#39d353"] * 4 + ["#56d364"] * 3 + ["#7ee787", "#2ea043", "#aff5b4"]
     dots = []
@@ -59,12 +59,15 @@ def banner():
                 continue
             for sx in (0, 1):  # 2x2 dots per glyph pixel
                 for sy in (0, 1):
-                    tx, ty = x0 + (2 * x + sx + 0.5) * step, y0 + (2 * y + sy + 0.5) * step
+                    j = 2 * y + sy
+                    # italic slant, plus one glyph row knocked 2 dots right as a glitch slice
+                    tx = x0 + (2 * x + sx + 0.5 + (21 - j) * skew + 2 * (y == 5)) * step
+                    ty = y0 + (j + 0.5) * step
                     fx, fy = random.uniform(-150, W + 150) - tx, random.uniform(-120, H + 120) - ty
                     a = math.atan2(ty - cy, tx - cx) + random.uniform(-0.5, 0.5)
                     d = random.uniform(250, 600)
                     delay = (tx - x0) / gw * 0.9 + random.uniform(0, 0.35)  # assembles as a left-to-right wave
-                    dots.append(f'<circle cx="{tx:.1f}" cy="{ty:.1f}" r="3.3" fill="{random.choice(greens)}" '
+                    dots.append(f'<circle cx="{tx:.1f}" cy="{ty:.1f}" r="2.7" fill="{random.choice(greens)}" '
                                 f'style="--x:{fx:.0f}px;--y:{fy:.0f}px;--ex:{math.cos(a) * d:.0f}px;--ey:{math.sin(a) * d:.0f}px;'
                                 f'animation-delay:{delay:.2f}s"/>')
 
