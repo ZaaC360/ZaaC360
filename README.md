@@ -13,7 +13,7 @@ NAME
        zaac — full-stack developer. not a vibecoder.
 
 PROJECTS
-       meeti          paid 1:1 video calls for creators    next · expo · socket.io
+       <a href="https://meeti.live">meeti</a>          paid 1:1 video calls for creators    next · expo · socket.io
        <a href="https://cardevo.net">cardevo</a>        ai business cards for freelancers    next · mongo · gemini
        <a href="https://apexindexer.com">apexindexer</a>    bulk google indexing api, saas       next · postgres · bullmq
 
